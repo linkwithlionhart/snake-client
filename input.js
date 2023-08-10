@@ -22,22 +22,34 @@ const setupInput = conn => {
 
 // Handle user input
 const handleUserInput = key => {
-  // Exit
+  // Implement: Exit
   if (key === '\u0003') {
     process.exit();
   }
-  // Up, down, left, right
-  if (key === 'w') {
+
+  // Implement: up, down, left, right
+  if (key === 'w' || key === '\u001b[A') {
     connection.write("Move: up");
   }
-  if (key === 's') {
+  if (key === 's' || key === '\u001b[B') {
     connection.write("Move: down");
   }
-  if (key === 'a') {
-    connection.write('Move: left');
+  if (key === 'a' || key === '\u001b[D') {
+    connection.write("Move: left");
   }
-  if (key === 'd') {
-    connection.write('Move: right');
+  if (key === 'd' || key === '\u001b[C') {
+    connection.write("Move: right");
+  }
+
+  // Implement: messages
+  if (key === '1') {
+    connection.write("Say: Hello, Snek!");
+  }
+  if (key === '2') {
+    connection.write("Say: I am inevitable.");
+  }
+  if (key === '3') {
+    connection.write("Say: Good game.")
   }
 }
 
