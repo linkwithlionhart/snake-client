@@ -1,55 +1,87 @@
-const net = require("net");
+const net = require('net');
+const { IP, PORT } = require('./constants');
 
-// establishes a connection with the game server
+/**
+ * Returns a random direction from the list of valid directions.
+ * @returns {string} A random direction - 'up', 'down', 'left', or 'right'.
+ */
+const getRandomDirection = function() {
+  const directions = ['up', 'down', 'left', 'right'];
+  return directions[Math.floor(Math.random() * directions.length)];
+}
+
+/**
+ * Displays the game instructions to the player.
+ */
+const displayInstructions = () => {
+  console.log(`
+  ===============================
+  SNEK GAME INSTRUCTIONS:
+  Move the snake using:
+    w or Arrow Up    - Move Up
+    s or Arrow Down  - Move Down
+    a or Arrow Left  - Move Left
+    d or Arrow Right - Move Right
+  
+  Send predefined messages using:
+    1 - "Hello, Snek!"
+    2 - "I am inevitable."
+    3 - "Good game."
+    4 - "Watch out, mate!"
+    5 - "OH, NAUR..."
+  ===============================
+  `);
+}
+
+/**
+ * Establishes a connection with the game server.
+ * @returns {Object} The established connection object.
+ */
 const connect = function() {
-  const conn = net.createConnection({
-    host: "localhost", // IP address here
-    port: 50541 // PORT number here
-  });
+  const conn = net.createConnection({ host: IP, port: PORT });
 
-  // interpret incoming data as text
-  conn.setEncoding("utf8")
+  // Set encoding for incoming data
+  conn.setEncoding("utf8");
 
-  // event handler for incoming data
+  // Event handler for incoming data
   conn.on("data", data => {
     console.log(data);
+    if (data.includes("A new snek has joined!")) {
+      console.log("Welcome to the new snek!");
+    }
   });
 
-  // event handler for successful connection
+  // Event handler for successful connection
   conn.on("connect", () => {
     console.log('Successfully connected to the game server!');
-    // Send name upon connection
+    displayInstructions();
+
+    // Send initial commands upon connection
     conn.write('Name: LHL');
-    // Send the "Move: up" command immediately upon connection
     conn.write('Move: up');
+
+    // Randomly move the snake and with delay.
+    // Below is commented out to reduce probability of crashing and still demonstrate experimentation.
+    /*
+    for (let i = 0; i < 3; i++) {
+      conn.write(`Move: ${getRandomDirection()}`);
+      setTimeout(() => conn.write(`Move: ${getRandomDirection()}`), 50 * (i+1));
+    }
+    */
+
+    // Continually move the snake up every 75ms, limited to 3 times
+    let moveCount = 0;
+    const interval = setInterval(() => {
+      if (moveCount < 3) {
+        conn.write('Move: up');
+        moveCount++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 75);
   });
 
   return conn;
-
 };
 
 module.exports = { connect };
-
-/* EXPERIMENTATION
-// What happens if we send more than one successive move message?
-conn.on("connect", () => {
-  conn.write('Move: up');
-  conn.write('Move: up');
-  conn.write('Move: up');
-})
-
-// What happens if we send more than one, but delay each of them by about 50ms apart, using setTimeout
-setTimeout(() => conn.write('Move: up'), 50);
-setTimeout(() => conn.write('Move: up'), 100);
-setTimeout(() => conn.write('Move: up'), 150);
-
-// What happens if we use setInterval in order to continually move the snake up every 50ms?
-let moveCount = 0;
-const interval = setInterval(() => {
-  if (moveCount < 25) {
-    conn.write('Move: up');
-    moveCount++;
-  } else {
-    clearInterval(interval);
-  }
-}, 75); */
