@@ -60,9 +60,8 @@ const connect = function() {
     conn.write('Name: LHL');
     conn.write('Move: up');
 
-    // Randomly move the snake and with delay.
-    // Below is commented out to reduce probability of crashing and still demonstrate experimentation.
-    /*
+    /** Below is commented out to reduce probability of snake crashing yet still demonstrate experimentation.
+     * Randomly move the snake and with delay.
     for (let i = 0; i < 3; i++) {
       conn.write(`Move: ${getRandomDirection()}`);
       setTimeout(() => conn.write(`Move: ${getRandomDirection()}`), 50 * (i+1));
